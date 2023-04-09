@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisService {
 
     @Autowired
-    @Qualifier("redisTemplate")
     private RedisTemplate<String, Object> redisTemplate;
     
 	public void registerData(RedisDataVO redisDataVO) {
