@@ -36,16 +36,19 @@ public class RedisConfig {
         LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
         		.clientOptions(ClusterClientOptions.builder()
         				.topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
-        						.refreshPeriod(Duration.ofMinutes(15))
+        						.refreshPeriod(Duration.ofMinutes(1))
         						.enableAdaptiveRefreshTrigger()
+        						.enablePeriodicRefresh(true)
         						.build())
         				.build())
+        		
                 .readFrom(ReadFrom.REPLICA_PREFERRED) // 복제본 노드에서 읽지 만 사용할 수없는 경우 마스터에서 읽습니다.
                 .build();
         
 
         // 모든 클러스터(master, slave) 정보를 적는다. (해당 서버중 접속되는 서버에서 cluster nodes 명령어를 통해 모든 클러스터 정보를 읽어오기에 다운 됐을 경우를 대비하여 모든 노드 정보를 적어두는편이 좋다.)
         RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration(clusterNodes);
+
 //                .clusterNode("localhost", 6300)
 //                .clusterNode("localhost", 6301)
 //                .clusterNode("localhost", 6302)

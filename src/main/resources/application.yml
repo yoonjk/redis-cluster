@@ -4,3 +4,10 @@ spring:
   redis: 
     cluster: 
       nodes: localhost:6300,localhost:6301,localhost:6302,localhost:6400,localhost:6401,localhost:6402
+      max-redirects: 2
+     
+    lettuce:
+      cluster:
+        refresh:
+          adaptive: true
+    
