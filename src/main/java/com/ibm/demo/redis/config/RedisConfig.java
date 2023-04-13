@@ -53,7 +53,6 @@ public class RedisConfig {
         
 
         // 모든 클러스터(master, slave) 정보를 적는다. (해당 서버중 접속되는 서버에서 cluster nodes 명령어를 통해 모든 클러스터 정보를 읽어오기에 다운 됐을 경우를 대비하여 모든 노드 정보를 적어두는편이 좋다.)
-        
         RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
         												.master(redisProperties.getSentinel().getMaster());
         
