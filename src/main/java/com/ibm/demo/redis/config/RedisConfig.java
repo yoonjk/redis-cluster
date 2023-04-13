@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,7 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,8 +31,11 @@ import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 
 @Configuration
 public class RedisConfig {
-	@Value("${spring.redis.cluster.nodes}")
+	@Value("${spring.redis.sentinel.nodes}")
 	private List<String> clusterNodes;
+	
+    @Autowired
+    private RedisProperties redisProperties;
     // lettuce 사용시
     @Bean
     public RedisConnectionFactory redisConnectionFactory(){
@@ -47,16 +53,13 @@ public class RedisConfig {
         
 
         // 모든 클러스터(master, slave) 정보를 적는다. (해당 서버중 접속되는 서버에서 cluster nodes 명령어를 통해 모든 클러스터 정보를 읽어오기에 다운 됐을 경우를 대비하여 모든 노드 정보를 적어두는편이 좋다.)
-        RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration(clusterNodes);
-
-//                .clusterNode("localhost", 6300)
-//                .clusterNode("localhost", 6301)
-//                .clusterNode("localhost", 6302)
-//                .clusterNode("localhost", 6400)
-//                .clusterNode("localhost", 6401)
-//                .clusterNode("localhost", 6402);
         
-        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisClusterConfiguration, clientConfiguration);
+        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
+        												.master(redisProperties.getSentinel().getMaster());
+        
+        redisProperties.getSentinel().getNodes().forEach(s -> sentinelConfig.sentinel(s, Integer.valueOf(redisProperties.getPort())));
+        
+        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(sentinelConfig, clientConfiguration);
         return lettuceConnectionFactory;
     }
     

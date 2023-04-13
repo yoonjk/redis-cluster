@@ -2,11 +2,13 @@
 
 spring: 
   redis: 
-    cluster: 
-      nodes: localhost:6300,localhost:6301,localhost:6302,localhost:6400,localhost:6401,localhost:6402
-      max-redirects: 2
+    sentinel:
+      master: mymaster
+      
+      nodes: localhost:6379,localhost:6383,localhost:6384
      
     lettuce:
+      shutdown-timeout: 200ms 
       cluster:
         refresh:
           adaptive: true
