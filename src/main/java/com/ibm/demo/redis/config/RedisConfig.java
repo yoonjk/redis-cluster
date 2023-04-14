@@ -36,18 +36,19 @@ public class RedisConfig {
 	
     @Autowired
     private RedisProperties redisProperties;
+
+    
     // lettuce 사용시
     @Bean
     public RedisConnectionFactory redisConnectionFactory(){
         LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
-        		.clientOptions(ClusterClientOptions.builder()
-        				.topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
-        						.refreshPeriod(Duration.ofMinutes(1))
-        						.enableAdaptiveRefreshTrigger()
-        						.enablePeriodicRefresh(true)
-        						.build())
-        				.build())
-        		
+//        		.clientOptions(ClusterClientOptions.builder()
+//        				.topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
+//        						.refreshPeriod(Duration.ofMinutes(1))
+//        						.enableAdaptiveRefreshTrigger()
+//        						.enablePeriodicRefresh(true)
+//        						.build())
+//        				.build())
                 .readFrom(ReadFrom.REPLICA_PREFERRED) // 복제본 노드에서 읽지 만 사용할 수없는 경우 마스터에서 읽습니다.
                 .build();
         
@@ -59,6 +60,7 @@ public class RedisConfig {
         redisProperties.getSentinel().getNodes().forEach(s -> sentinelConfig.sentinel(s, Integer.valueOf(redisProperties.getPort())));
         
         LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(sentinelConfig, clientConfiguration);
+       
         return lettuceConnectionFactory;
     }
     
