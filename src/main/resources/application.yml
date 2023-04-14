@@ -4,12 +4,17 @@ spring:
   redis: 
     sentinel:
       master: mymaster
+      nodes: localhost:6382,localhost:6383,localhost:6384
       
-      nodes: localhost:6379,localhost:6383,localhost:6384
-     
     lettuce:
       shutdown-timeout: 200ms 
-      cluster:
-        refresh:
-          adaptive: true
-    
+      pool:
+        # 연결 풀의 최대 연결 수(제한 없음을 나타내려면 음수 값 사용) 기본값은 8입니다.
+        max-active: 8
+        # 연결 풀의 최대 유휴 연결은 기본적으로 8입니다.
+        max-idle: 8
+        # 연결 풀의 최대 차단 대기 시간(제한 없음을 나타내려면 음수 값 사용) 기본값은 -1입니다.
+        max-wait: -1ms
+        # 연결 풀의 최소 유휴 연결은 기본적으로 0입니다.
+        min-idle: 0
+
