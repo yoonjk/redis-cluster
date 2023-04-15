@@ -1,20 +1,21 @@
 package com.ibm.demo.redis.config;
 
+import java.net.InetAddress;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.cache.CacheKeyPrefix;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -22,7 +23,6 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import io.lettuce.core.ReadFrom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,32 +32,30 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class RedisConfig {    
 	
-	private final RedisProperties redisProperties;
-	 
-    // lettuce 사용시
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory(){
-        LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
-//        		.clientOptions(ClusterClientOptions.builder()
-//        				.topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
-//        						.refreshPeriod(Duration.ofMinutes(1))
-//        						.enableAdaptiveRefreshTrigger()
-//        						.enablePeriodicRefresh(true)
-//        						.build())
-//        				.build())
-                .readFrom(ReadFrom.REPLICA_PREFERRED) // 복제본 노드에서 읽지 만 사용할 수없는 경우 마스터에서 읽습니다.
-                .build();
-        
+	@Autowired
+	private Environment env;
 
-        // 모든 클러스터(master, slave) 정보를 적는다. (해당 서버중 접속되는 서버에서 cluster nodes 명령어를 통해 모든 클러스터 정보를 읽어오기에 다운 됐을 경우를 대비하여 모든 노드 정보를 적어두는편이 좋다.)
-        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
-        	    .master(redisProperties.getSentinel().getMaster());
-        	  redisProperties.getSentinel().getNodes().forEach(s -> sentinelConfig.sentinel(s, redisProperties.getPort()));
-        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(sentinelConfig, clientConfiguration);
-       
-        log.info("test:{}", redisProperties);
-        
-        return lettuceConnectionFactory;
+
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+    	InetAddress address = null;
+    	  try
+    	  {
+    	    address = InetAddress.getByName("::");
+    	    // Should of connected with no exception thrown since we know this port was listening in netstat
+    	    log.info("addresss:{}", address);
+    	  }
+    	  catch (Throwable t) {
+    	    t.printStackTrace();
+    	  }
+    	  
+    	  RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
+    		.master("mymaster")
+		    .sentinel("2401:c900:1101:17d::4", 5000)
+		    .sentinel("2401:c900:1101:17d::4", 5001)
+		    .sentinel("2401:c900:1101:17d::4", 5002);
+   
+        return new LettuceConnectionFactory(sentinelConfig);
     }
     
     @Bean

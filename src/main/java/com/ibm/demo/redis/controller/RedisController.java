@@ -33,8 +33,8 @@ public class RedisController {
 	
 	@GetMapping("/register/{key}")
 	public ResponseEntity<?> getRedis(@PathVariable String key) {
-		RedisDataVO redisDataVO = redisService.retrieveData(key);
-		RedisData redisData = new RedisData();
+		Object redisDataVO = redisService.retrieveData(key);
+		Object redisData = new RedisData();
 		BeanUtils.copyProperties(redisDataVO, redisData);
 		return ResponseEntity.status(HttpStatus.OK).body(redisData);
 	}

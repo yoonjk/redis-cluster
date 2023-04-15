@@ -1,7 +1,6 @@
 package com.ibm.demo.redis.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +17,19 @@ public class RedisService {
     
 	public void registerData(RedisDataVO redisDataVO) {
         try{
+        	log.info("registDataVO:{}", redisDataVO);
             redisTemplate.opsForValue().set(redisDataVO.getKey(), redisDataVO);
         }catch (Exception e){
             log.error("### Redis Set Key Error !!! ::: {}", e.getMessage());
         }
 	}
 	
-	public RedisDataVO retrieveData(String key) {
-		RedisDataVO redisDataVO = null;
+	public Object retrieveData(String key) {
+		Object redisDataVO = null;
         try{
-        	redisDataVO = (RedisDataVO)redisTemplate.opsForValue().get(key);
+        	log.info("1.retrieveData:{}", key);
+        	redisDataVO = redisTemplate.opsForValue().get(key);
+        	log.info("2.retrieveData:{}", redisDataVO);
         }catch (Exception e){
             log.error("### Redis Set Key Error !!! ::: {}", e.getMessage());
         }
