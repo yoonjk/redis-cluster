@@ -1,16 +1,19 @@
 package com.ibm.demo.redis.config;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.cache.CacheKeyPrefix;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -19,9 +22,12 @@ import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scripting.ScriptSource;
+import org.springframework.scripting.support.ResourceScriptSource;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +41,8 @@ public class RedisConfig {
 	@Autowired
 	private Environment env;
 
+	@Value("${classpath:/scripts/script.lua}")
+	private String location;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
@@ -43,19 +51,33 @@ public class RedisConfig {
     	  {
     	    address = InetAddress.getByName("::");
     	    // Should of connected with no exception thrown since we know this port was listening in netstat
-    	    log.info("addresss:{}", address);
+    	    log.info("1.addresss:{}", address);
     	  }
     	  catch (Throwable t) {
     	    t.printStackTrace();
     	  }
     	  
     	  RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
-    		.master("mymaster")
+    		.master("redismaster")
 		    .sentinel("2401:c900:1101:17d::4", 5000)
 		    .sentinel("2401:c900:1101:17d::4", 5001)
 		    .sentinel("2401:c900:1101:17d::4", 5002);
    
         return new LettuceConnectionFactory(sentinelConfig);
+    }
+    
+    /**
+     * lua script
+     * @return
+     * @throws IOException
+     */
+    @Bean
+    public RedisScript<Object> script() throws IOException {
+    	ClassPathResource resource = new ClassPathResource(location);
+
+    	ScriptSource scriptSource = new ResourceScriptSource(resource);
+    	
+    	return RedisScript.of(scriptSource.getScriptAsString(), Object.class);
     }
     
     @Bean

@@ -38,4 +38,11 @@ public class RedisController {
 		BeanUtils.copyProperties(redisDataVO, redisData);
 		return ResponseEntity.status(HttpStatus.OK).body(redisData);
 	}
+	
+	@GetMapping("/lua")
+	public ResponseEntity<?> runLua() {
+		String resultRua = redisService.runLua();
+
+		return ResponseEntity.status(HttpStatus.OK).body(resultRua);
+	}
 }
