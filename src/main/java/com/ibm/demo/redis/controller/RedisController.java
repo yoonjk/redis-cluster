@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ibm.demo.redis.dto.RedisData;
+import com.ibm.demo.redis.dto.TransferDto;
 import com.ibm.demo.redis.service.RedisService;
 import com.ibm.demo.redis.vo.RedisDataVO;
 
@@ -39,10 +40,5 @@ public class RedisController {
 		return ResponseEntity.status(HttpStatus.OK).body(redisData);
 	}
 	
-	@GetMapping("/lua")
-	public ResponseEntity<?> runLua() {
-		String resultRua = redisService.runLua();
 
-		return ResponseEntity.status(HttpStatus.OK).body(resultRua);
-	}
 }

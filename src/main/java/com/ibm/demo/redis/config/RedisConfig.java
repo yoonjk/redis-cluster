@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +25,7 @@ import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
@@ -38,10 +42,13 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class RedisConfig {    
 	
+	@Resource
+	private StringRedisTemplate stringRedisTemplate;
+	
 	@Autowired
 	private Environment env;
 
-	@Value("${classpath:/scripts/script.lua}")
+	@Value("${classpath:/scripts/transfer.lua}")
 	private String location;
 
     @Bean
@@ -72,12 +79,13 @@ public class RedisConfig {
      * @throws IOException
      */
     @Bean
-    public RedisScript<Object> script() throws IOException {
-    	ClassPathResource resource = new ClassPathResource(location);
+    public RedisScript<Long> script() throws IOException {
+    	ClassPathResource resource = new ClassPathResource("scripts/transfer.lua");
+    	log.info("resourc lua:{}", resource);
 
     	ScriptSource scriptSource = new ResourceScriptSource(resource);
-    	
-    	return RedisScript.of(scriptSource.getScriptAsString(), Object.class);
+
+    	return RedisScript.of(scriptSource.getScriptAsString(), Long.class);
     }
     
     @Bean
@@ -115,6 +123,25 @@ public class RedisConfig {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         
         return redisTemplate;
+    }
+    
+    private void loadRedisScript(RedisScript<Object> redisScript, String luaName) {
+    	try {
+    		List<Boolean> results = stringRedisTemplate.getConnectionFactory().getConnection().scriptExists(redisScript.getSha1());
+    		
+			log.info("lua:{}, sha=[{}]", luaName, results);
+			
+    		if (Boolean.FALSE.equals(results.get(0))) {
+    			String sha = stringRedisTemplate.getConnectionFactory().getConnection().scriptLoad(scriptBytes(redisScript));
+    			log.info("lua:{}, sha=[{}]", luaName, sha);
+    		}
+    	} catch(Exception e) {
+    		log.error("{}", luaName, e);
+    	}
+    }
+    
+    private byte[] scriptBytes(RedisScript<?> script) {
+    	return stringRedisTemplate.getStringSerializer().serialize(script.getScriptAsString());
     }
  
     @Bean
