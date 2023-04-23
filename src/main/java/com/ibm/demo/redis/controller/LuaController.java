@@ -1,5 +1,6 @@
 package com.ibm.demo.redis.controller;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ibm.demo.redis.dto.RequestLimitDto;
 import com.ibm.demo.redis.dto.TransferDto;
+import com.ibm.demo.redis.dto.ZRangeByScoreDto;
 import com.ibm.demo.redis.service.LuaService;
+import com.ibm.demo.redis.vo.ZRangeByScoreVO;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +43,17 @@ public class LuaController {
 	@ApiOperation(value = "requestLimit", notes="requestLimit 실행합니다.")
 	public ResponseEntity<?> requestLimitRate(@RequestBody RequestLimitDto requestLimitDto) {
 		Object ret = luaService.requestLimitRate(requestLimitDto);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(ret);
+	}
+	
+	@PostMapping("/sortedsets/zrangebyscore")
+	@ApiOperation(value = "requestLimit", notes="requestLimit 실행합니다.")
+	public ResponseEntity<?> getZRangeByScore(@RequestBody ZRangeByScoreDto zrangeByScoreDto) {
+		ZRangeByScoreVO zrangeByScoreVO = new ZRangeByScoreVO();
+		
+		BeanUtils.copyProperties(zrangeByScoreDto, zrangeByScoreVO);
+		Object ret = luaService.zrangeByScore(zrangeByScoreVO);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
 	}

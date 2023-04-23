@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.ibm.demo.redis.dto.RequestLimitDto;
 import com.ibm.demo.redis.dto.TransferDto;
+import com.ibm.demo.redis.vo.ZRangeByScoreVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,8 +33,14 @@ public class LuaService {
 	@Value("${classpath:/scripts/requestLimit.lua}")
 	private String requestLimit;
 	
+	@Value("${classpath:/scripts/script.lua}")
+	private String zrangeByScore;
+	
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     
 	/**
 	 * 이
@@ -56,6 +64,24 @@ public class LuaService {
         }
     }
     
+    /**
+     * sorted set으로부터 min ~ max 사이의 value를 가진 list들 중, offset을 기준으로 count 수 만큼 추출하게 된다
+     * @param zRangeByScoreVO
+     * @return
+     */
+    public Object zrangeByScore(ZRangeByScoreVO zRangeByScoreVO) {
+    	DefaultRedisScript<Long>  redisScript = new DefaultRedisScript<>();
+    	Resource resource = new ClassPathResource(zrangeByScore);
+    	redisScript.setScriptSource(new ResourceScriptSource(resource));
+    	redisScript.setResultType(Long.class);
+    	
+    	log.info("zrangeByScore input:{}", zRangeByScoreVO);
+    	Object ret = redisTemplate.execute(redisScript, Collections.singletonList(zRangeByScoreVO.getKey()), zRangeByScoreVO.getMin(), zRangeByScoreVO.getMax(), zRangeByScoreVO.getOffset(), zRangeByScoreVO.getCount());
+    	log.info("zrangeByScore return:{}", ret);
+    	
+    	return ret;
+    }
+    
     public Object runLua(TransferDto transfer) {
     	DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(transferLua);
@@ -66,7 +92,7 @@ public class LuaService {
         String toAccount = transfer.getToAccount();
         Object[] args = new Object[] {transfer.getAmount()};
         
-        Long ret = (Long)redisTemplate.execute(script, Arrays.asList(fromAccount, toAccount), args); //min, max, offset, count
+        Long ret = (Long)redisTemplate.execute(script, Arrays.asList(fromAccount, toAccount), args); 
         
         log.info("transfer ret:{}", ret);
         
