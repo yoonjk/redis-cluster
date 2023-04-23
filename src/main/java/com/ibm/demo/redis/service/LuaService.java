@@ -1,6 +1,7 @@
 package com.ibm.demo.redis.service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 
+import com.ibm.demo.redis.dto.RequestLimitDto;
 import com.ibm.demo.redis.dto.TransferDto;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,9 @@ public class LuaService {
     
 	@Value("${classpath:/scripts/transfer.lua}")
 	private String transferLua;
+	
+	@Value("${classpath:/scripts/requestLimit.lua}")
+	private String requestLimit;
 	
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -66,5 +71,19 @@ public class LuaService {
         log.info("transfer ret:{}", ret);
         
     	return ret;
-    }    
+    }   
+    
+    public Object requestLimitRate(RequestLimitDto requestLimitDto) {
+    	DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+    	Resource resource = new ClassPathResource(requestLimit);
+    	redisScript.setScriptSource(new ResourceScriptSource(resource));
+    	redisScript.setResultType(Long.class);
+    	log.info("requestLimit:{}", requestLimitDto);
+    	Object[] args = new Object[] {requestLimitDto.getLimit(),requestLimitDto.getExpire()};
+    	Long ret = (Long) redisTemplate.execute(redisScript, Collections.singletonList(requestLimitDto.getKey()), args);
+    	
+    	log.info("requestLimit ret:{}", ret);
+    	
+    	return ret;
+    }
 }

@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ibm.demo.redis.dto.RedisData;
-import com.ibm.demo.redis.dto.TransferDto;
+import com.ibm.demo.redis.dto.RedisDataRes;
 import com.ibm.demo.redis.service.RedisService;
+import com.ibm.demo.redis.vo.RedisDataResVO;
 import com.ibm.demo.redis.vo.RedisDataVO;
 
 import io.swagger.annotations.ApiOperation;
@@ -24,7 +25,7 @@ public class RedisController {
 	private final RedisService redisService;
 	
 	@PostMapping("/register")
-	@ApiOperation(value = "key등", notes="Key를 등록합니다.")
+	@ApiOperation(value = "key/value를 등록", notes="Key/value(Object)를 등록합니다.")
 	public ResponseEntity<?> registRedis(@RequestBody RedisData redisData) {
 		RedisDataVO redisDataVO = new RedisDataVO();
 		BeanUtils.copyProperties(redisData, redisDataVO);
@@ -33,6 +34,7 @@ public class RedisController {
 	}
 	
 	@GetMapping("/register/{key}")
+	@ApiOperation(value = "key조회", notes="Key를 조회해서 Object를 반환합니다.")
 	public ResponseEntity<?> getRedis(@PathVariable String key) {
 		Object redisDataVO = redisService.retrieveData(key);
 		Object redisData = new RedisData();
@@ -40,5 +42,23 @@ public class RedisController {
 		return ResponseEntity.status(HttpStatus.OK).body(redisData);
 	}
 	
-
+	@PostMapping("/set")
+	@ApiOperation(value = "key등록", notes="Key를 등록합니다.")
+	public ResponseEntity<?> setValue(@RequestBody RedisData redisData) {
+		RedisDataVO redisDataVO = new RedisDataVO();
+		BeanUtils.copyProperties(redisData, redisDataVO);
+		RedisDataVO redisDataRes = redisService.setValue(redisDataVO);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(redisDataRes);
+	}
+	
+	@GetMapping("/get/{key}")
+	@ApiOperation(value = "key조회", notes="Key를 조회합니다.")
+	public ResponseEntity<?> getValue(@PathVariable String key) {
+		RedisDataResVO redisDataResVO = redisService.getValue(key);
+		RedisDataRes redisDataRes = new RedisDataRes();
+		BeanUtils.copyProperties(redisDataResVO, redisDataRes);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(redisDataRes);
+	}	
 }

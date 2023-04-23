@@ -8,7 +8,7 @@ if current + 1 > limitCount then -- 분당호출수 초과시 0 return
     return 0
 
 else
-    redis.call('INCRBY', key,'1')
+    redis.call('INCR', key)
     redis.call('expire', key,limitTime)
     return current + 1
 end

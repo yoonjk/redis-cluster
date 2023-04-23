@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ibm.demo.redis.dto.RequestLimitDto;
 import com.ibm.demo.redis.dto.TransferDto;
 import com.ibm.demo.redis.service.LuaService;
 
@@ -34,4 +35,12 @@ public class LuaController {
 
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
 	}	
+	
+	@PostMapping("/requestLimit")
+	@ApiOperation(value = "requestLimit", notes="requestLimit 실행합니다.")
+	public ResponseEntity<?> requestLimitRate(@RequestBody RequestLimitDto requestLimitDto) {
+		Object ret = luaService.requestLimitRate(requestLimitDto);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(ret);
+	}
 }
