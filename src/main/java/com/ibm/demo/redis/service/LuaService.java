@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import com.ibm.demo.redis.dto.RequestLimitDto;
 import com.ibm.demo.redis.dto.TransferDto;
+import com.ibm.demo.redis.vo.Item;
+import com.ibm.demo.redis.vo.LeaderBoardReqVO;
 import com.ibm.demo.redis.vo.ZRangeByScoreVO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,9 @@ public class LuaService {
 	
 	@Value("${classpath:/scripts/script.lua}")
 	private String zrangeByScore;
+	
+	@Value("${classpath:/scripts/leaderBoard.lua}")
+	private String leaderBoard;
 	
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -82,6 +87,11 @@ public class LuaService {
     	return ret;
     }
     
+    /**
+     * Transfer a b 10
+     * @param transfer
+     * @return
+     */
     public Object runLua(TransferDto transfer) {
     	DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(transferLua);
@@ -99,6 +109,11 @@ public class LuaService {
     	return ret;
     }   
     
+    /**
+     * requestLimitRate
+     * @param requestLimitDto
+     * @return
+     */
     public Object requestLimitRate(RequestLimitDto requestLimitDto) {
     	DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(requestLimit);
@@ -109,6 +124,20 @@ public class LuaService {
     	Long ret = (Long) redisTemplate.execute(redisScript, Collections.singletonList(requestLimitDto.getKey()), args);
     	
     	log.info("requestLimit ret:{}", ret);
+    	
+    	return ret;
+    }
+    
+    public Object retrieveLeaderBoard(LeaderBoardReqVO leaderBoardReqVO) {
+    	DefaultRedisScript<List> redisScript = new DefaultRedisScript<>();
+    	Resource resource = new ClassPathResource(leaderBoard);
+    	redisScript.setScriptSource(new ResourceScriptSource(resource));
+    	redisScript.setResultType(List.class);
+    	log.info("retrieveLeaderBoard:{}", leaderBoardReqVO);
+    	Object[] args = new Object[] {leaderBoardReqVO.getUser()};
+    	Object ret = redisTemplate.execute(redisScript,  Arrays.asList(leaderBoardReqVO.getKey(), leaderBoardReqVO.getUser()), leaderBoardReqVO.getCount());
+    	
+    	log.info("retrieveLeaderBoard ret:{}", ret);
     	
     	return ret;
     }

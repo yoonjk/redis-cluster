@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ibm.demo.redis.dto.LeaderBoardReqDto;
 import com.ibm.demo.redis.dto.RequestLimitDto;
 import com.ibm.demo.redis.dto.TransferDto;
 import com.ibm.demo.redis.dto.ZRangeByScoreDto;
 import com.ibm.demo.redis.service.LuaService;
+import com.ibm.demo.redis.vo.LeaderBoardReqVO;
 import com.ibm.demo.redis.vo.ZRangeByScoreVO;
 
 import io.swagger.annotations.ApiOperation;
@@ -57,4 +59,15 @@ public class LuaController {
 		
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
 	}
+	
+	@PostMapping("/sortedsets/leaderBoard")
+	@ApiOperation(value = "leaderBoard 조", notes="leaderBoard 조회 합니다.")
+	public ResponseEntity<?> retrieveLeaderBoard(@RequestBody LeaderBoardReqDto leaderBoardReqDto) {
+
+		LeaderBoardReqVO leaderBoardReqVO = new LeaderBoardReqVO();
+		BeanUtils.copyProperties(leaderBoardReqDto, leaderBoardReqVO);
+		Object ret = luaService.retrieveLeaderBoard(leaderBoardReqVO);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(ret);
+	}	
 }
