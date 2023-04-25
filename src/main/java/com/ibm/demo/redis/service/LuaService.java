@@ -132,6 +132,7 @@ public class LuaService {
     	Resource resource = new ClassPathResource(leaderBoard);
     	redisScript.setScriptSource(new ResourceScriptSource(resource));
     	redisScript.setResultType(Object.class);
+    	loadRedisScript(redisTemplate, redisScript, leaderBoard);
     	log.info("retrieveLeaderBoard:{}", leaderBoardReqVO);
     	Object[] args = new Object[] {leaderBoardReqVO.getUser()};
     	Object ret = redisTemplate.execute(redisScript,  Arrays.asList(leaderBoardReqVO.getKey(), leaderBoardReqVO.getUser()), leaderBoardReqVO.getCount());
@@ -140,4 +141,26 @@ public class LuaService {
     	
     	return ret;
     }
+    
+    private String loadRedisScript(RedisTemplate redisTemplate, RedisScript<Object> redisScript, String luaName) {
+    	String sha = null;
+    	try {
+    		List<Boolean> results = redisTemplate.getConnectionFactory().getConnection().scriptExists(redisScript.getSha1());
+    		
+			log.info("lua:{}, result exist = [{}], sha={}", luaName, results, redisScript.getSha1());
+			
+    		if (Boolean.FALSE.equals(results.get(0))) {
+    			sha = redisTemplate.getConnectionFactory().getConnection().scriptLoad(scriptBytes(redisTemplate, redisScript));
+    			log.info("lua:{}, sha=[{}]", luaName, sha);
+    		}
+    	} catch(Exception e) {
+    		log.error("{}", luaName, e);
+    	}
+    	
+    	return sha;
+    }
+    
+    private byte[] scriptBytes(RedisTemplate redisTemplate, RedisScript<?> script) {
+    	return redisTemplate .getStringSerializer().serialize(script.getScriptAsString());
+    }   
 }

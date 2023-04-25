@@ -2,7 +2,6 @@ package com.ibm.demo.redis.config;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -27,11 +26,19 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scripting.ScriptSource;
 import org.springframework.scripting.support.ResourceScriptSource;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.ibm.demo.redis.service.RedisSubService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class RedisConfig {    
 	
+	private final RedisSubService redisSubService;
+	
 	@Resource
 	private StringRedisTemplate stringRedisTemplate;
 	
@@ -51,6 +60,9 @@ public class RedisConfig {
 	@Value("${classpath:/scripts/transfer.lua}")
 	private String location;
 
+	@Value("${spring.redis.topic}")
+	private String topicName;
+	
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
     	InetAddress address = null;
@@ -126,37 +138,49 @@ public class RedisConfig {
         return redisTemplate;
     }
     
-    private void loadRedisScript(RedisScript<Object> redisScript, String luaName) {
-    	try {
-    		List<Boolean> results = stringRedisTemplate.getConnectionFactory().getConnection().scriptExists(redisScript.getSha1());
-    		
-			log.info("lua:{}, sha=[{}]", luaName, results);
-			
-    		if (Boolean.FALSE.equals(results.get(0))) {
-    			String sha = stringRedisTemplate.getConnectionFactory().getConnection().scriptLoad(scriptBytes(redisScript));
-    			log.info("lua:{}, sha=[{}]", luaName, sha);
-    		}
-    	} catch(Exception e) {
-    		log.error("{}", luaName, e);
-    	}
-    }
-    
-    private byte[] scriptBytes(RedisScript<?> script) {
-    	return stringRedisTemplate.getStringSerializer().serialize(script.getScriptAsString());
-    }
+
  
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
+    	PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator
+    			.builder()
+    			.allowIfBaseType(Object.class)
+    			.build();
+    	
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	objectMapper.activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL);
+    	
     	CustomJackson2JsonRedisSerializer customJackson2JsonRedisSerializer = new CustomJackson2JsonRedisSerializer();
     	
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(customJackson2JsonRedisSerializer);
-        //redisTemplate.setDefaultSerializer(customJackson2JsonRedisSerializer);
+        redisTemplate.setDefaultSerializer(customJackson2JsonRedisSerializer);
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(customJackson2JsonRedisSerializer);   
         
         return redisTemplate;
-    }      
+    }    
+    
+    //리스너어댑터 설정
+    @Bean
+    MessageListenerAdapter messageListenerAdapter() {
+        return new MessageListenerAdapter(redisSubService);
+    }
+    
+    //컨테이너 설정
+    @Bean
+    RedisMessageListenerContainer redisContainer() {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(redisConnectionFactory());
+        container.addMessageListener(messageListenerAdapter(), topic());
+        return container;
+    }
+
+    //pub/sub 토픽 설정
+    @Bean
+    public ChannelTopic topic() {
+        return new ChannelTopic(topicName);
+    }   
 }

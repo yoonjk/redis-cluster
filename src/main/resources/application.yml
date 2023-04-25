@@ -4,4 +4,6 @@ spring:
   main.allow-circular-references: true
   application:
     name: redis-cluster
+  redis:
+     topic: ${MY_TOPIC:topic1}
     
