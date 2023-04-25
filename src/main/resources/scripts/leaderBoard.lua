@@ -4,6 +4,8 @@ local max = rank + ARGV[1]
 local ldb = redis.call('zrange', KEYS[1], min, max)
 local results = {}
 
-results[1] = tostring(rank + 1)
+results['rank'] = tostring(rank + 1)
+results['item'] = ldb
 
-return results
+local vars = cjson.encode(results)
+return vars

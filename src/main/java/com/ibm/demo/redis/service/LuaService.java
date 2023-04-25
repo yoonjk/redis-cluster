@@ -129,10 +129,10 @@ public class LuaService {
     }
     
     public Object retrieveLeaderBoard(LeaderBoardReqVO leaderBoardReqVO) {
-    	DefaultRedisScript<List> redisScript = new DefaultRedisScript<>();
+    	DefaultRedisScript<Object> redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(leaderBoard);
     	redisScript.setScriptSource(new ResourceScriptSource(resource));
-    	redisScript.setResultType(List.class);
+    	redisScript.setResultType(Object.class);
     	log.info("retrieveLeaderBoard:{}", leaderBoardReqVO);
     	Object[] args = new Object[] {leaderBoardReqVO.getUser()};
     	Object ret = redisTemplate.execute(redisScript,  Arrays.asList(leaderBoardReqVO.getKey(), leaderBoardReqVO.getUser()), leaderBoardReqVO.getCount());
