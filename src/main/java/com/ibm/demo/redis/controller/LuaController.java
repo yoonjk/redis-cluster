@@ -25,16 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 public class LuaController {
 	private final LuaService luaService;
 	
-	@PostMapping("/lua")
-	@ApiOperation(value = "lua script 실행", notes="Lua script를 실행합니다.")
-	public ResponseEntity<?> transfer(@RequestBody TransferDto transfer) {
-		luaService.transfer(transfer);
-
-		return ResponseEntity.status(HttpStatus.OK).body("success");
-	}
-	
-	@PostMapping("/lua2")
-	@ApiOperation(value = "다양한 Lua Script 실행", notes = "Lua script를 다향하게 실행하기 위한 방법입니다.")
+	@PostMapping("/transfer")
+	@ApiOperation(value = "Lua를 이용한 이체 ", notes = "Lua를 이용한 이체하는 방법입니다.")
 	public ResponseEntity<?> runLua(@RequestBody TransferDto transfer) {
 		Object ret = luaService.runLua(transfer);
 
