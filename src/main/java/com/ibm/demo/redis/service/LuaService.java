@@ -35,17 +35,16 @@ public class LuaService {
 	@Value("${classpath:/scripts/requestLimit.lua}")
 	private String requestLimit;
 	
-	@Value("${classpath:/scripts/script.lua}")
+	@Value("${classpath:/scripts/zrangebyscore.lua}")
 	private String zrangeByScore;
 	
 	@Value("${classpath:/scripts/leaderBoard.lua}")
 	private String leaderBoard;
 	
+
+	
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-    
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
     
 	/**
 	 * 이
@@ -75,10 +74,10 @@ public class LuaService {
      * @return
      */
     public Object zrangeByScore(ZRangeByScoreVO zRangeByScoreVO) {
-    	DefaultRedisScript<Long>  redisScript = new DefaultRedisScript<>();
+    	DefaultRedisScript<Object>  redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(zrangeByScore);
     	redisScript.setScriptSource(new ResourceScriptSource(resource));
-    	redisScript.setResultType(Long.class);
+    	redisScript.setResultType(Object.class);
     	
     	log.info("zrangeByScore input:{}", zRangeByScoreVO);
     	Object ret = redisTemplate.execute(redisScript, Collections.singletonList(zRangeByScoreVO.getKey()), zRangeByScoreVO.getMin(), zRangeByScoreVO.getMax(), zRangeByScoreVO.getOffset(), zRangeByScoreVO.getCount());

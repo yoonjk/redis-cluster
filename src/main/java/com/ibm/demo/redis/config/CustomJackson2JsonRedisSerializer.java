@@ -1,8 +1,11 @@
 package com.ibm.demo.redis.config;
 
+import java.util.Objects;
+
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,6 +24,13 @@ public class CustomJackson2JsonRedisSerializer extends GenericJackson2JsonRedisS
 	public <T> T deserialize(@Nullable byte[] source, Class<T> type) throws SerializationException {
 		T clazz = null;
 		try {
+			
+			Assert.notNull(type,
+					"Deserialization type must not be null! Please provide Object.class to make use of Jackson2 default typing.");
+
+			if (Objects.isNull(source)) {
+				return null;
+			}
 
 			log.info("Source:{}, class:{}", new String(source), type);
 			clazz = objectMapper.readValue(new String(source), type);

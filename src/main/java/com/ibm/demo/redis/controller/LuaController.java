@@ -50,7 +50,7 @@ public class LuaController {
 	}
 	
 	@PostMapping("/sortedsets/zrangebyscore")
-	@ApiOperation(value = "requestLimit", notes="requestLimit 실행합니다.")
+	@ApiOperation(value = "zrangebyscore", notes="score기준으로 min/max 범위내에서 지정한 개수만큼 조회합니다.")
 	public ResponseEntity<?> getZRangeByScore(@RequestBody ZRangeByScoreDto zrangeByScoreDto) {
 		ZRangeByScoreVO zrangeByScoreVO = new ZRangeByScoreVO();
 		
@@ -61,7 +61,7 @@ public class LuaController {
 	}
 	
 	@PostMapping("/sortedsets/leaderBoard")
-	@ApiOperation(value = "leaderBoard 조", notes="leaderBoard 조회 합니다.")
+	@ApiOperation(value = "leaderBoard 조회", notes="Lua를 사용하여 leaderBoard 조회 합니다.")
 	public ResponseEntity<?> retrieveLeaderBoard(@RequestBody LeaderBoardReqDto leaderBoardReqDto) {
 
 		LeaderBoardReqVO leaderBoardReqVO = new LeaderBoardReqVO();

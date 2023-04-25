@@ -2,6 +2,7 @@ package com.ibm.demo.redis.config;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +32,6 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scripting.ScriptSource;
 import org.springframework.scripting.support.ResourceScriptSource;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +72,7 @@ public class RedisConfig {
    
         return new LettuceConnectionFactory(sentinelConfig);
     }
+
     
     /**
      * lua script
@@ -149,30 +147,16 @@ public class RedisConfig {
  
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
-    	
-    	PolymorphicTypeValidator typeValidate = BasicPolymorphicTypeValidator
-    			.builder()
-    			.allowIfSubType(Object.class)
-    			.build();
-    	
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	objectMapper.registerSubtypes(String.class);
-    	
-    	GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-    	
-
     	CustomJackson2JsonRedisSerializer customJackson2JsonRedisSerializer = new CustomJackson2JsonRedisSerializer();
     	
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(customJackson2JsonRedisSerializer);
-        redisTemplate.setDefaultSerializer(customJackson2JsonRedisSerializer);
-        redisTemplate.setDefaultSerializer(customJackson2JsonRedisSerializer);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(customJackson2JsonRedisSerializer);
-        redisTemplate.setHashKeySerializer(customJackson2JsonRedisSerializer);
-        redisTemplate.setHashValueSerializer(customJackson2JsonRedisSerializer);        
+        //redisTemplate.setDefaultSerializer(customJackson2JsonRedisSerializer);
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(customJackson2JsonRedisSerializer);   
+        
         return redisTemplate;
     }      
 }
