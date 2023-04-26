@@ -13,9 +13,13 @@ public class RedisListService {
     private final RedisTemplate<String, Object> redisTemplate;
     
     public PushResVO addPushAll(PushReqVO pushReqVO) {
-    	//redisTemplate.opsForList().rightPushAll(null, null);
+    	long ret = redisTemplate.opsForList().rightPushAll(pushReqVO.getKey(), pushReqVO.getData());
     	
-    	return null;
+    	PushResVO pushResVO = new PushResVO();
+    	
+    	pushResVO.setMessage("Success");
+    	
+    	return pushResVO;
     }
     
 }

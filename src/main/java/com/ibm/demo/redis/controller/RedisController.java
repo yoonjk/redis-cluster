@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ibm.demo.redis.dto.PushReqDto;
+import com.ibm.demo.redis.dto.PushResDto;
 import com.ibm.demo.redis.dto.RedisData;
 import com.ibm.demo.redis.dto.RedisDataRes;
+import com.ibm.demo.redis.service.RedisListService;
 import com.ibm.demo.redis.service.RedisService;
 import com.ibm.demo.redis.vo.PushReqVO;
+import com.ibm.demo.redis.vo.PushResVO;
 import com.ibm.demo.redis.vo.RedisDataResVO;
 import com.ibm.demo.redis.vo.RedisDataVO;
 
@@ -25,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class RedisController {
 
 	private final RedisService redisService;
-	
+	private final RedisListService redisListService;
 	@PostMapping("/register")
 	@ApiOperation(value = "key/value를 등록", notes="Key/value(Object)를 등록합니다.")
 	public ResponseEntity<?> registRedis(@RequestBody RedisData redisData) {
@@ -64,14 +67,21 @@ public class RedisController {
 		return ResponseEntity.status(HttpStatus.OK).body(redisDataRes);
 	}	
 	
+	@PostMapping("/list/pushAll")
+	@ApiOperation(value = "Item 목록을 push", notes="Item 목록을 push 합니다.")
 	public ResponseEntity<?> addRightPushAll(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
+		PushResVO pushResVO = new PushResVO();
+		PushResDto pushResDto = new PushResDto();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		for (int i = 0; i < pushReqDto.getData().size(); i++) {
 			pushReqVO.getData().add(pushReqDto.getData().get(i));
 		}
 		
-		return ResponseEntity.status(HttpStatus.OK).body(pushReqDto);
+		pushResVO = redisListService.addPushAll(pushReqVO);
+		BeanUtils.copyProperties(pushResVO, pushResDto);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(pushResDto);
 	}
 }
