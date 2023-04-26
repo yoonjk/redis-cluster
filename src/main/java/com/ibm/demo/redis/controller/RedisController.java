@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ibm.demo.redis.dto.PushReqDto;
 import com.ibm.demo.redis.dto.RedisData;
 import com.ibm.demo.redis.dto.RedisDataRes;
 import com.ibm.demo.redis.service.RedisService;
+import com.ibm.demo.redis.vo.PushReqVO;
 import com.ibm.demo.redis.vo.RedisDataResVO;
 import com.ibm.demo.redis.vo.RedisDataVO;
 
@@ -61,4 +63,15 @@ public class RedisController {
 		
 		return ResponseEntity.status(HttpStatus.OK).body(redisDataRes);
 	}	
+	
+	public ResponseEntity<?> addRightPushAll(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		for (int i = 0; i < pushReqDto.getData().size(); i++) {
+			pushReqVO.getData().add(pushReqDto.getData().get(i));
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(pushReqDto);
+	}
 }
