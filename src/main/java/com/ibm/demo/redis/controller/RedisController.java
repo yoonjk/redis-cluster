@@ -1,5 +1,7 @@
 package com.ibm.demo.redis.controller;
 
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,9 @@ import com.ibm.demo.redis.vo.RedisDataVO;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class RedisController {
@@ -65,23 +69,5 @@ public class RedisController {
 		BeanUtils.copyProperties(redisDataResVO, redisDataRes);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(redisDataRes);
-	}	
-	
-	@PostMapping("/list/pushAll")
-	@ApiOperation(value = "Item 목록을 push", notes="Item 목록을 push 합니다.")
-	public ResponseEntity<?> addRightPushAll(@RequestBody PushReqDto pushReqDto) {
-		PushReqVO pushReqVO = new PushReqVO();
-		PushResVO pushResVO = new PushResVO();
-		PushResDto pushResDto = new PushResDto();
-		BeanUtils.copyProperties(pushReqDto, pushReqVO);
-		
-		for (int i = 0; i < pushReqDto.getData().size(); i++) {
-			pushReqVO.getData().add(pushReqDto.getData().get(i));
-		}
-		
-		pushResVO = redisListService.addPushAll(pushReqVO);
-		BeanUtils.copyProperties(pushResVO, pushResDto);
-		
-		return ResponseEntity.status(HttpStatus.OK).body(pushResDto);
-	}
+	}		
 }
