@@ -21,11 +21,8 @@ public class RedisListService {
 	private final StringRedisTemplate stringRedisTemplate;
 
 	public PushResVO addRightPush(PushReqVO pushReqVO) {
-
-		long ret = 0;
-
 		for (int i = 0; i < pushReqVO.getData().length; i++) {
-			ret = redisTemplate.opsForList().rightPush(pushReqVO.getKey(), pushReqVO.getData()[i]);
+			redisTemplate.opsForList().rightPush(pushReqVO.getKey(), pushReqVO.getData()[i]);
 		}
 
 		PushResVO pushResVO = new PushResVO();
@@ -64,11 +61,8 @@ public class RedisListService {
 	}
 
 	public PushResVO addLeftPush(PushReqVO pushReqVO) {
-
-		long ret = 0;
-
 		for (int i = 0; i < pushReqVO.getData().length; i++) {
-			ret = redisTemplate.opsForList().leftPush(pushReqVO.getKey(), pushReqVO.getData()[i]);
+			redisTemplate.opsForList().leftPush(pushReqVO.getKey(), pushReqVO.getData()[i]);
 		}
 
 		PushResVO pushResVO = new PushResVO();
