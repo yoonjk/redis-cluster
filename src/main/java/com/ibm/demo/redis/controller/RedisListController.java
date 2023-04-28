@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ibm.demo.redis.dto.PushReqDto;
 import com.ibm.demo.redis.dto.PushResDto;
 import com.ibm.demo.redis.service.RedisListService;
-import com.ibm.demo.redis.service.RedisService;
 import com.ibm.demo.redis.vo.PushReqVO;
 import com.ibm.demo.redis.vo.PushResVO;
 
@@ -25,7 +24,7 @@ public class RedisListController {
 	private final RedisListService redisListService;
 	@PostMapping("/list/rpush")
 	@ApiOperation(value = "Item 목록을 Right push", notes="Item 목록을 Right push 합니다.")
-	public ResponseEntity<?> addRightPushAll(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> addRightPush(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		PushResVO pushResVO = new PushResVO();
 		PushResDto pushResDto = new PushResDto();
@@ -42,9 +41,45 @@ public class RedisListController {
 		return ResponseEntity.status(HttpStatus.OK).body(pushResDto);
 	}
 	
+	@PostMapping("/list/rpushAll")
+	@ApiOperation(value = "Items 목록을 Right push", notes="Items 목록을 Right push 합니다.")
+	public ResponseEntity<?> addRightPushAll(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		PushResVO pushResVO = new PushResVO();
+		PushResDto pushResDto = new PushResDto();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+	
+		pushReqVO.setData(pushReqDto.getData());
+
+		log.info("pushReqVO:{}", pushReqDto);
+		long ret = redisListService.addRightPushAll(pushReqVO);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(ret));
+	}	
+	
+	@PostMapping("/list/lpushAll")
+	@ApiOperation(value = "Items 목록을 Left push", notes="Items 목록을 Left push 합니다.")
+	public ResponseEntity<?> addLeftPushAll(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		PushResVO pushResVO = new PushResVO();
+		PushResDto pushResDto = new PushResDto();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+	
+		pushReqVO.setData(pushReqDto.getData());
+
+		log.info("pushReqVO:{}", pushReqDto);
+		long ret = redisListService.addLeftPushAll(pushReqVO);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(ret));
+	}	
+	
 	@PostMapping("/list/lpush")
 	@ApiOperation(value = "Item 목록을 Left push", notes="Item 목록을 Left push 합니다.")
-	public ResponseEntity<?> addLeftPushAll(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> addLeftPushl(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		PushResVO pushResVO = new PushResVO();
 		PushResDto pushResDto = new PushResDto();
@@ -61,9 +96,9 @@ public class RedisListController {
 		return ResponseEntity.status(HttpStatus.OK).body(pushResDto);
 	}
 	
-	@PostMapping("/list/range")
+	@PostMapping("/list/lrange")
 	@ApiOperation(value = "Item 목록을 조회", notes="Item 목록을 조회합니다.")
-	public ResponseEntity<?> getList(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> lrange(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
@@ -72,13 +107,13 @@ public class RedisListController {
 		log.info("pushReqVO:{}", pushReqDto);
 		pushReqVO.setData(pushReqDto.getData());
 
-		Object items = redisListService.range(pushReqVO);
+		Object items = redisListService.lrange(pushReqVO);
 
 		
 		return ResponseEntity.status(HttpStatus.OK).body(items);
 	}
 	
-	@PostMapping("/list/itemSize")
+	@PostMapping("/list/llen")
 	@ApiOperation(value = "Item 목록 개수를 조회", notes="Item 목록 개수를 조회합니다.")
 	public ResponseEntity<?> getListSize(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
@@ -89,12 +124,12 @@ public class RedisListController {
 		log.info("pushReqVO:{}", pushReqDto);
 		pushReqVO.setData(pushReqDto.getData());
 
-		long len = redisListService.itemLength(pushReqVO);
+		long len = redisListService.llen(pushReqVO);
 
 		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(len));
 	}
 	
-	@PostMapping("/list/index")
+	@PostMapping("/list/lindex")
 	@ApiOperation(value = "Index 위치의 Item을 조회 ", notes="Index 위치의 Item을 조회합니다.")
 	public ResponseEntity<?> getIndex(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
@@ -105,12 +140,12 @@ public class RedisListController {
 		log.info("pushReqVO:{}", pushReqDto);
 		pushReqVO.setData(pushReqDto.getData());
 
-		String item = redisListService.index(pushReqVO);
+		String item = redisListService.lindex(pushReqVO);
 
 		return ResponseEntity.status(HttpStatus.OK).body(item);
 	}
 	
-	@PostMapping("/list/indexOf")
+	@PostMapping("/list/lpos")
 	@ApiOperation(value = "Item 의 Index 위치를 조회 ", notes="Item 의 Index 위치를 조회합니다.")
 	public ResponseEntity<?> getIndexOf(@RequestBody PushReqDto pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
@@ -121,8 +156,89 @@ public class RedisListController {
 		log.info("pushReqVO:{}", pushReqDto);
 		pushReqVO.setData(pushReqDto.getData());
 
-		long index = redisListService.indexOf(pushReqVO);
+		long index = redisListService.lpos(pushReqVO);
 
 		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(index));
+	}
+	
+	@PostMapping("/list/ltrim")
+	@ApiOperation(value = "Item을 trim", notes="Item을 trim 합니다.")
+	public ResponseEntity<?> trim(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		PushResDto pushRes = new PushResDto();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+		log.info("pushReqVO:{}", pushReqDto);
+		pushReqVO.setData(pushReqDto.getData());
+
+		PushResVO pushResVO = redisListService.trim(pushReqVO);
+		BeanUtils.copyProperties(pushResVO, pushRes);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(pushRes));
+	}
+	
+	@PostMapping("/list/lpop")
+	@ApiOperation(value = "Left item을 반환", notes="Left item을 반환합니다.")
+	public ResponseEntity<?> lpop(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+		log.info("pushReqVO:{}", pushReqDto);
+		pushReqVO.setData(pushReqDto.getData());
+
+		String item = redisListService.lpop(pushReqVO);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(item);
 	}	
+
+	@PostMapping("/list/rpop")
+	@ApiOperation(value = "Right item을 반환", notes="Left item을 반환합니다.")
+	public ResponseEntity<?> rpop(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+		log.info("pushReqVO:{}", pushReqDto);
+		pushReqVO.setData(pushReqDto.getData());
+
+		String item = redisListService.rpop(pushReqVO);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(item);
+	}
+
+	@PostMapping("/list/lset")
+	@ApiOperation(value = "Right item을 반환", notes="Left item을 반환합니다.")
+	public ResponseEntity<?> lset(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		PushResDto pushRes = new PushResDto();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+		log.info("pushReqVO:{}", pushReqDto);
+		pushReqVO.setData(pushReqDto.getData());
+
+		PushResVO pushResVO = redisListService.lset(pushReqVO);
+		BeanUtils.copyProperties(pushResVO, pushRes);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(pushRes));
+	}
+	
+	@PostMapping("/list/lrem")
+	@ApiOperation(value = "Left item을 삭제", notes="Left item을 삭제합니다.")
+	public ResponseEntity<?> lrem(@RequestBody PushReqDto pushReqDto) {
+		PushReqVO pushReqVO = new PushReqVO();
+		PushResDto pushRes = new PushResDto();
+		BeanUtils.copyProperties(pushReqDto, pushReqVO);
+		
+		log.info("pushReqDto:{}", pushReqDto);
+		log.info("pushReqVO:{}", pushReqDto);
+		pushReqVO.setData(pushReqDto.getData());
+
+		long ret = redisListService.lrem(pushReqVO);
+	
+		return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(ret));
+	}
+		
 }
