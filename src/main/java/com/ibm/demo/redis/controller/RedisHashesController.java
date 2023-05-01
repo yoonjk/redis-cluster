@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ibm.demo.redis.dto.HashesReq;
-import com.ibm.demo.redis.service.RedisHashesService;
+import com.ibm.demo.redis.service.RedisHashesService; 
 import com.ibm.demo.redis.vo.HashesReqVO;
 import com.ibm.demo.redis.vo.HashesResVO;
 
