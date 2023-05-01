@@ -5,9 +5,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-@Setter
 @Getter
-public class ChatMessageDto {
-    private String sender;
-    private String context;
+@Setter
+public class LeaderBoardReqReq {
+	private String key;
+	private String user;
+	private int count;
 }

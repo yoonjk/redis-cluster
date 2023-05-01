@@ -15,8 +15,8 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 
-import com.ibm.demo.redis.dto.RequestLimitDto;
-import com.ibm.demo.redis.dto.TransferDto;
+import com.ibm.demo.redis.dto.RequestLimitReq;
+import com.ibm.demo.redis.dto.Transfer;
 import com.ibm.demo.redis.vo.Item;
 import com.ibm.demo.redis.vo.LeaderBoardReqVO;
 import com.ibm.demo.redis.vo.ZRangeByScoreVO;
@@ -50,7 +50,7 @@ public class LuaService {
 	 * 이
 	 * @return
 	 */
-    public void transfer(TransferDto transfer ) {
+    public void transfer(Transfer transfer ) {
         List<String> spares = null;
 
         String fromAccount = transfer.getFromAccount();
@@ -91,7 +91,7 @@ public class LuaService {
      * @param transfer
      * @return
      */
-    public Object runLua(TransferDto transfer) {
+    public Object runLua(Transfer transfer) {
     	DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(transferLua);
     	redisScript.setScriptSource(new ResourceScriptSource(resource));
@@ -113,7 +113,7 @@ public class LuaService {
      * @param requestLimitDto
      * @return
      */
-    public Object requestLimitRate(RequestLimitDto requestLimitDto) {
+    public Object requestLimitRate(RequestLimitReq requestLimitDto) {
     	DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
     	Resource resource = new ClassPathResource(requestLimit);
     	redisScript.setScriptSource(new ResourceScriptSource(resource));

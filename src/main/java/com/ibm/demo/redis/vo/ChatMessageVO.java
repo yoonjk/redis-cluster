@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString
 @Setter
 @Getter
-public class ChatMessage {
+public class ChatMessageVO {
     private String sender;
     private String context;
 }

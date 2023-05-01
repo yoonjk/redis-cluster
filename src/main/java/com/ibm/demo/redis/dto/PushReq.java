@@ -5,12 +5,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-@Getter
 @Setter
-public class ZRangeByScoreDto {
+@Getter
+public class PushReq {
 	private String key;
-	private int min;
-	private int max;
-	private int offset;
-	private int count;
+	private int start;
+	private int end;	
+	private String[] data;
 }

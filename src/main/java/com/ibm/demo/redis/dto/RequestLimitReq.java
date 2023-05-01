@@ -7,8 +7,8 @@ import lombok.ToString;
 @ToString
 @Getter
 @Setter
-public class TransferDto {
-	private String fromAccount;
-    private String toAccount;
-	private int amount;
+public class RequestLimitReq {
+	private String key;
+	private int limit;
+	private int expire;
 }

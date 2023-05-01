@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ibm.demo.redis.dto.PushReqDto;
-import com.ibm.demo.redis.dto.PushResDto;
-import com.ibm.demo.redis.dto.RedisData;
+import com.ibm.demo.redis.dto.PushReq;
+import com.ibm.demo.redis.dto.PushRes;
+import com.ibm.demo.redis.dto.RedisDataReq;
 import com.ibm.demo.redis.dto.RedisDataRes;
 import com.ibm.demo.redis.service.RedisListService;
 import com.ibm.demo.redis.service.RedisService;
@@ -35,7 +35,7 @@ public class RedisController {
 	private final RedisListService redisListService;
 	@PostMapping("/register")
 	@ApiOperation(value = "key/value를 등록", notes="Key/value(Object)를 등록합니다.")
-	public ResponseEntity<?> registRedis(@RequestBody RedisData redisData) {
+	public ResponseEntity<?> registRedis(@RequestBody RedisDataReq redisData) {
 		RedisDataVO redisDataVO = new RedisDataVO();
 		BeanUtils.copyProperties(redisData, redisDataVO);
 		redisService.registerData(redisDataVO);
@@ -46,14 +46,14 @@ public class RedisController {
 	@ApiOperation(value = "key조회", notes="Key를 조회해서 Object를 반환합니다.")
 	public ResponseEntity<?> getRedis(@PathVariable String key) {
 		Object redisDataVO = redisService.retrieveData(key);
-		Object redisData = new RedisData();
+		Object redisData = new RedisDataReq();
 		BeanUtils.copyProperties(redisDataVO, redisData);
 		return ResponseEntity.status(HttpStatus.OK).body(redisData);
 	}
 	
 	@PostMapping("/set")
 	@ApiOperation(value = "key등록", notes="Key를 등록합니다.")
-	public ResponseEntity<?> setValue(@RequestBody RedisData redisData) {
+	public ResponseEntity<?> setValue(@RequestBody RedisDataReq redisData) {
 		RedisDataVO redisDataVO = new RedisDataVO();
 		BeanUtils.copyProperties(redisData, redisDataVO);
 		RedisDataVO redisDataRes = redisService.setValue(redisDataVO);

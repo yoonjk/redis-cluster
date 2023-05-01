@@ -5,9 +5,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-@Getter
 @Setter
-public class RedisData {
-    public String key;
-    public String value;
+@Getter
+public class ChatMessageReq {
+    private String sender;
+    private String context;
 }

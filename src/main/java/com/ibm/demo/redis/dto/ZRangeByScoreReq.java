@@ -7,8 +7,10 @@ import lombok.ToString;
 @ToString
 @Getter
 @Setter
-public class RequestLimitDto {
+public class ZRangeByScoreReq {
 	private String key;
-	private int limit;
-	private int expire;
+	private int min;
+	private int max;
+	private int offset;
+	private int count;
 }

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ibm.demo.redis.dto.PushReqDto;
-import com.ibm.demo.redis.dto.PushResDto;
+import com.ibm.demo.redis.dto.PushReq;
+import com.ibm.demo.redis.dto.PushRes;
 import com.ibm.demo.redis.service.RedisListService;
 import com.ibm.demo.redis.vo.PushReqVO;
 import com.ibm.demo.redis.vo.PushResVO;
@@ -24,10 +24,10 @@ public class RedisListController {
 	private final RedisListService redisListService;
 	@PostMapping("/list/rpush")
 	@ApiOperation(value = "Item 목록을 Right push", notes="Item 목록을 Right push 합니다.")
-	public ResponseEntity<?> addRightPush(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> addRightPush(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		PushResVO pushResVO = new PushResVO();
-		PushResDto pushResDto = new PushResDto();
+		PushRes pushResDto = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);
@@ -43,10 +43,10 @@ public class RedisListController {
 	
 	@PostMapping("/list/rpushAll")
 	@ApiOperation(value = "Items 목록을 Right push", notes="Items 목록을 Right push 합니다.")
-	public ResponseEntity<?> addRightPushAll(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> addRightPushAll(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		PushResVO pushResVO = new PushResVO();
-		PushResDto pushResDto = new PushResDto();
+		PushRes pushResDto = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);
@@ -61,10 +61,10 @@ public class RedisListController {
 	
 	@PostMapping("/list/lpushAll")
 	@ApiOperation(value = "Items 목록을 Left push", notes="Items 목록을 Left push 합니다.")
-	public ResponseEntity<?> addLeftPushAll(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> addLeftPushAll(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		PushResVO pushResVO = new PushResVO();
-		PushResDto pushResDto = new PushResDto();
+		PushRes pushResDto = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);
@@ -79,10 +79,10 @@ public class RedisListController {
 	
 	@PostMapping("/list/lpush")
 	@ApiOperation(value = "Item 목록을 Left push", notes="Item 목록을 Left push 합니다.")
-	public ResponseEntity<?> addLeftPushl(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> addLeftPushl(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		PushResVO pushResVO = new PushResVO();
-		PushResDto pushResDto = new PushResDto();
+		PushRes pushResDto = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);
@@ -98,7 +98,7 @@ public class RedisListController {
 	
 	@PostMapping("/list/lrange")
 	@ApiOperation(value = "Item 목록을 조회", notes="Item 목록을 조회합니다.")
-	public ResponseEntity<?> lrange(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> lrange(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
@@ -115,7 +115,7 @@ public class RedisListController {
 	
 	@PostMapping("/list/llen")
 	@ApiOperation(value = "Item 목록 개수를 조회", notes="Item 목록 개수를 조회합니다.")
-	public ResponseEntity<?> getListSize(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> getListSize(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
@@ -131,7 +131,7 @@ public class RedisListController {
 	
 	@PostMapping("/list/lindex")
 	@ApiOperation(value = "Index 위치의 Item을 조회 ", notes="Index 위치의 Item을 조회합니다.")
-	public ResponseEntity<?> getIndex(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> getIndex(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
@@ -147,7 +147,7 @@ public class RedisListController {
 	
 	@PostMapping("/list/lpos")
 	@ApiOperation(value = "Item 의 Index 위치를 조회 ", notes="Item 의 Index 위치를 조회합니다.")
-	public ResponseEntity<?> getIndexOf(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> getIndexOf(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
@@ -163,9 +163,9 @@ public class RedisListController {
 	
 	@PostMapping("/list/ltrim")
 	@ApiOperation(value = "Item을 trim", notes="Item을 trim 합니다.")
-	public ResponseEntity<?> trim(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> trim(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
-		PushResDto pushRes = new PushResDto();
+		PushRes pushRes = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);
@@ -180,7 +180,7 @@ public class RedisListController {
 	
 	@PostMapping("/list/lpop")
 	@ApiOperation(value = "Left item을 반환", notes="Left item을 반환합니다.")
-	public ResponseEntity<?> lpop(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> lpop(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
@@ -195,7 +195,7 @@ public class RedisListController {
 
 	@PostMapping("/list/rpop")
 	@ApiOperation(value = "Right item을 반환", notes="Left item을 반환합니다.")
-	public ResponseEntity<?> rpop(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> rpop(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
@@ -210,9 +210,9 @@ public class RedisListController {
 
 	@PostMapping("/list/lset")
 	@ApiOperation(value = "Right item을 반환", notes="Left item을 반환합니다.")
-	public ResponseEntity<?> lset(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> lset(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
-		PushResDto pushRes = new PushResDto();
+		PushRes pushRes = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);
@@ -227,9 +227,9 @@ public class RedisListController {
 	
 	@PostMapping("/list/lrem")
 	@ApiOperation(value = "Left item을 삭제", notes="Left item을 삭제합니다.")
-	public ResponseEntity<?> lrem(@RequestBody PushReqDto pushReqDto) {
+	public ResponseEntity<?> lrem(@RequestBody PushReq pushReqDto) {
 		PushReqVO pushReqVO = new PushReqVO();
-		PushResDto pushRes = new PushResDto();
+		PushRes pushRes = new PushRes();
 		BeanUtils.copyProperties(pushReqDto, pushReqVO);
 		
 		log.info("pushReqDto:{}", pushReqDto);

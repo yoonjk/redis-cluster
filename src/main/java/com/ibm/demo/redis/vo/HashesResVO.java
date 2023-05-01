@@ -9,6 +9,6 @@ import lombok.ToString;
 @ToString
 @Setter
 @Getter
-public class HashResVO extends CommonRes {
+public class HashesResVO extends CommonRes {
 
 }

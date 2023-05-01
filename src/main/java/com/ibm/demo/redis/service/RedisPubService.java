@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.demo.redis.vo.ChatMessage;
+import com.ibm.demo.redis.vo.ChatMessageVO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class RedisPubService {
 	private String topicName;
 	
 	ObjectMapper objectMapper = new ObjectMapper();
-    public void sendMessage(ChatMessage chatMessage) {
+    public void sendMessage(ChatMessageVO chatMessage) {
     	log.info("topicName:{}, Chat Message:{}", topicName, chatMessage);
     	try {
             redisTemplate.convertAndSend(topicName, objectMapper.writeValueAsString(chatMessage));
