@@ -1,9 +1,5 @@
 package com.ibm.demo.redis.controller;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +14,9 @@ import com.ibm.demo.redis.vo.HashesResVO;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class RedisHashesController {
@@ -28,7 +26,7 @@ public class RedisHashesController {
 	public ResponseEntity<?> getEntries(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
 		
 		Object ret = redisHashesService.getEntries(hashesReqVO);
 		
@@ -40,7 +38,7 @@ public class RedisHashesController {
     public Object setPut(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
 		
 		Object ret = redisHashesService.setPut(hashesReqVO);
 		
@@ -52,7 +50,7 @@ public class RedisHashesController {
     public Object delete(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
 		
 		Object ret = redisHashesService.delete(hashesReqVO);
 		
@@ -64,9 +62,9 @@ public class RedisHashesController {
     public Object values(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
 		
-		Object ret = redisHashesService.delete(hashesReqVO);
+		Object ret = redisHashesService.keys(hashesReqVO);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
     }
@@ -76,9 +74,9 @@ public class RedisHashesController {
     public Object keys(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
 		
-		Object ret = redisHashesService.delete(hashesReqVO);
+		Object ret = redisHashesService.values(hashesReqVO);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
     }  
@@ -88,19 +86,22 @@ public class RedisHashesController {
     public Object get(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
 		
 		Object ret = redisHashesService.getValue(hashesReqVO);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
     }  
-	
+
+	@PostMapping("/hashes/hmget")
+	@ApiOperation(value = "HashKey의 value를 조회", notes="HashKey의 value를 조회")	
     public Object multiGet(@RequestBody HashesReq hashesReq) {
 		HashesReqVO hashesReqVO = new HashesReqVO();
 		HashesResVO hashesResVO = new HashesResVO();
-		BeanUtils.copyProperties(hashesReq, hashesResVO);
-		
-		Object ret = redisHashesService.getValue(hashesReqVO);
+		BeanUtils.copyProperties(hashesReq, hashesReqVO);
+		hashesReq.setHashKey(hashesReq.getHashKey());
+		log.info("hashesReqVO:{}", hashesReqVO);
+		Object ret = redisHashesService.multiGet(hashesReqVO);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(ret);
     }  
